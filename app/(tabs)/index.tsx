@@ -3,8 +3,7 @@ import AppLoading from "expo-app-loading"; // for loading state
 import React, { useState } from "react";
 import {
   Image,
-  Keyboard,
-  ScrollView,
+  Keyboard, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from "react-native";
+import HeartIcon from "../../assets/images/heart.svg";
 
 export default function Index() {
   const [fontsLoaded] = useFonts({
@@ -39,67 +39,81 @@ export default function Index() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        {/* Avatars & heart */}
-        <Image
-          source={require("../../assets/images/usicons.png")}
-          style={styles.usicons}
-        />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView
+          contentContainerStyle={[styles.container, { flexGrow: 1, paddingBottom: 60 }]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
+          {/* Days together counter */}
+          <View style={styles.counterBox}>
+            <View style={{ alignItems: "center", marginBottom: 10 }}>
+              <HeartIcon width={48} height={40} />
+            </View>
+            <Text style={styles.counterText}>Day X, Month X, Year X</Text>
+          </View>
 
-        {/* Love Note Section */}
-        <View style={styles.noteSection}>
-          <Text style={styles.sectionTitle}>💌 Today’s Love Note</Text>
-
-          {/* Show notes from today */}
-          {notes
-            .filter(n => n.date === new Date().toDateString())
-            .map((n, idx) => (
-              <View style={styles.savedNote} key={idx}>
-                <Text style={[styles.savedNoteText, { fontFamily: "PixelifySans_400Regular" }]}>“{n.text}”</Text>
-                <Text style={styles.date}>— {n.date}</Text>
-              </View>
-            ))}
-
-          {/* Input box */}
-          <TextInput
-            style={[styles.input, { fontFamily: "PixelifySans_400Regular" }]}
-            placeholder="Write a sweet note to each other..."
-            value={note}
-            onChangeText={setNote}
-            multiline
+          {/* Avatars & heart */}
+          <Image
+            source={require("../../assets/images/usicons.png")}
+            style={styles.usicons}
           />
 
-          {/* Send button */}
-          <TouchableOpacity style={styles.button} onPress={handleSend}>
-            <Text style={styles.buttonText}>send</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Love Note Section */}
+          <View style={styles.noteSection}>
+            <Text style={styles.sectionTitle}>💌 Today’s Love Note</Text>
 
-        {/* Days together counter */}
-        <View style={styles.counterBox}>
-          <Text style={styles.counterText}>Day X together</Text>
-          <Text style={styles.counterSub}>- months</Text>
-          <Text style={styles.counterSub}>- years</Text>
-        </View>
-      </View>
-    </TouchableWithoutFeedback>
+            {/* Show notes from today */}
+            {notes
+              .filter(n => n.date === new Date().toDateString())
+              .map((n, idx) => (
+                <View style={styles.savedNote} key={idx}>
+                  <Text style={[styles.savedNoteText, { fontFamily: "PixelifySans_400Regular" }]}>“{n.text}”</Text>
+                  <Text style={styles.date}>— {n.date}</Text>
+                </View>
+              ))}
+
+            {/* Input box */}
+            <TextInput
+              style={[styles.input, { fontFamily: "PixelifySans_400Regular" }]}
+              placeholder="Write a sweet note to each other..."
+              value={note}
+              onChangeText={setNote}
+              multiline
+            />
+
+            {/* Send button */}
+            <TouchableOpacity style={styles.button} onPress={handleSend}>
+              <Text style={styles.buttonText}>send</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Spacer to ensure extra space below days together section */}
+          <View style={{ height: 80 }} />
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#FFE6EB",
     alignItems: "center",
     justifyContent: "flex-start",
     paddingTop: 40,
   },
   usicons: {
-    height: 300,
-    width: 300,
+    height: 400,
+    width: 400,
     resizeMode: "contain",
-    marginBottom: -40,
+    marginBottom: 0,
+    marginTop: -65,
+    zIndex: 1,
   },
   noteSection: {
     backgroundColor: "#FFF8F0",
@@ -114,6 +128,7 @@ const styles = StyleSheet.create({
     shadowRadius: 9.2,
     shadowOffset: { width: 0, height: 0 },
     elevation: 4,
+    marginTop: -103,
   },
   sectionTitle: {
     fontSize: 20,
@@ -163,26 +178,23 @@ const styles = StyleSheet.create({
     textTransform: "lowercase",
   },
   counterBox: {
-    backgroundColor: "#FFD6D6",
+    // backgroundColor removed
     borderRadius: 16,
     padding: 20,
     alignItems: "center",
     width: "85%",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    marginTop: 10,
+    marginTop: 40,
+    marginBottom: -30,
   },
   counterText: {
-    fontSize: 18,
+    fontSize: 24,
     fontFamily: "PixelifySans_700Bold",
-    color: "#474646",
+    color: "#E07579",
   },
   counterSub: {
-    fontSize: 14,
+    fontSize: 24,
     fontFamily: "PixelifySans_400Regular",
-    color: "#555",
+    color: "#E07579",
   },
   navBar: {
     position: "absolute",
