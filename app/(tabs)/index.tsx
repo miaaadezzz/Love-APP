@@ -1,139 +1,205 @@
+import { PixelifySans_400Regular, PixelifySans_700Bold, useFonts } from "@expo-google-fonts/pixelify-sans";
+import AppLoading from "expo-app-loading"; // for loading state
 import React, { useState } from "react";
 import {
   Image,
+  Keyboard,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  TouchableWithoutFeedback,
+  View
 } from "react-native";
 
 export default function Index() {
+  const [fontsLoaded] = useFonts({
+    PixelifySans_400Regular,
+    PixelifySans_700Bold,
+  });
+
   const [note, setNote] = useState<string>("");
-  const [savedNote, setSavedNote] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Array<{ text: string; date: string }>>([
+    { text: "i thought of you today. i missed you lots", date: new Date().toDateString() },
+  ]);
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
 
   const handleSend = () => {
     if (note.trim().length > 0) {
-      setSavedNote(note);
+      setNotes(prev => [
+        ...prev,
+        { text: note, date: new Date().toDateString() }
+      ]);
       setNote("");
     }
   };
 
   return (
-    <View style={styles.container}>
-      {/* Usicons image at top */}
-  <Image source={require("../../assets/images/usicons.png")} style={styles.usicons} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        {/* Avatars & heart */}
+        <Image
+          source={require("../../assets/images/usicons.png")}
+          style={styles.usicons}
+        />
 
-      {/* Title */}
-      <Text style={styles.header}>💌 Today’s Love Note</Text>
+        {/* Love Note Section */}
+        <View style={styles.noteSection}>
+          <Text style={styles.sectionTitle}>💌 Today’s Love Note</Text>
 
-      {/* Show saved note */}
-      {savedNote && (
-  <View style={styles.savedNote}>
-          <Text style={styles.savedNoteText}>{savedNote}</Text>
-          <Text style={styles.date}>— {new Date().toDateString()}</Text>
+          {/* Show notes from today */}
+          {notes
+            .filter(n => n.date === new Date().toDateString())
+            .map((n, idx) => (
+              <View style={styles.savedNote} key={idx}>
+                <Text style={[styles.savedNoteText, { fontFamily: "PixelifySans_400Regular" }]}>“{n.text}”</Text>
+                <Text style={styles.date}>— {n.date}</Text>
+              </View>
+            ))}
+
+          {/* Input box */}
+          <TextInput
+            style={[styles.input, { fontFamily: "PixelifySans_400Regular" }]}
+            placeholder="Write a sweet note to each other..."
+            value={note}
+            onChangeText={setNote}
+            multiline
+          />
+
+          {/* Send button */}
+          <TouchableOpacity style={styles.button} onPress={handleSend}>
+            <Text style={styles.buttonText}>send</Text>
+          </TouchableOpacity>
         </View>
-      )}
 
-      {/* Input box */}
-      <TextInput
-        style={styles.input}
-        placeholder="Write a sweet note to each other..."
-        value={note}
-        onChangeText={setNote}
-        multiline
-      />
-
-      {/* Send button */}
-      <TouchableOpacity style={styles.button} onPress={handleSend}>
-        <Text style={styles.buttonText}>send</Text>
-      </TouchableOpacity>
-
-      {/* Days together counter placeholder */}
-      <View style={styles.counterBox}>
-        <Text style={styles.counterText}>Day X together</Text>
-        <Text style={styles.counterSub}>- months</Text>
-        <Text style={styles.counterSub}>- years</Text>
+        {/* Days together counter */}
+        <View style={styles.counterBox}>
+          <Text style={styles.counterText}>Day X together</Text>
+          <Text style={styles.counterSub}>- months</Text>
+          <Text style={styles.counterSub}>- years</Text>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffe6eb",
+    backgroundColor: "#FFE6EB",
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingTop: 40,
   },
   usicons: {
-    width: 120,
-    height: 120,
+    height: 300,
+    width: 300,
     resizeMode: "contain",
-    marginBottom: 20,
+    marginBottom: -40,
   },
-  header: {
-    fontSize: 22,
-    fontWeight: "bold",
+  noteSection: {
+    backgroundColor: "#FFF8F0",
+    borderRadius: 13,
+    borderLeftWidth: 5,
+    borderLeftColor: "#FFB6B9",
+    padding: 20,
+    width: "90%",
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 9.2,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 4,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: "PixelifySans_700Bold",
+    marginBottom: 15,
+  textAlign: "center",
+  letterSpacing: 1,
   },
   savedNote: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFEBEE",
     borderRadius: 12,
-    padding: 15,
-    marginBottom: 20,
-    width: "100%",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    padding: 12,
+    marginBottom: 15,
   },
   savedNoteText: {
-    fontSize: 16,
-    color: "#d6336c",
+    fontSize: 13,
+    fontFamily: "PixelifySans_400Regular",
+    color: "#E36166",
+    fontWeight: 400,
+    letterSpacing: 0.65,
   },
   date: {
-    marginTop: 5,
     fontSize: 12,
-    color: "#888",
+    fontFamily: "PixelifySans_400Regular",
+    color: "rgba(117, 117, 117, 0.59)",
+    marginTop: 4,
+    letterSpacing: 0.65, 
   },
   input: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 15,
-    width: "100%",
-    minHeight: 80,
-    marginBottom: 15,
+    padding: 12,
+    minHeight: 60,
+    marginBottom: 12,
     textAlignVertical: "top",
   },
   button: {
-    backgroundColor: "#ff8fa3",
-    paddingVertical: 12,
-    paddingHorizontal: 40,
+    backgroundColor: "#FFB6B9",
+    alignSelf: "flex-end",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 12,
-    marginBottom: 30,
   },
   buttonText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    textTransform: "uppercase",
+    fontFamily: "PixelifySans_700Bold",
+    textTransform: "lowercase",
   },
   counterBox: {
-    backgroundColor: "#fddde6",
-    borderRadius: 12,
+    backgroundColor: "#FFD6D6",
+    borderRadius: 16,
     padding: 20,
     alignItems: "center",
-    marginTop: 20,
+    width: "85%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    marginTop: 10,
   },
   counterText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "PixelifySans_700Bold",
+    color: "#474646",
   },
   counterSub: {
     fontSize: 14,
-    color: "#666",
+    fontFamily: "PixelifySans_400Regular",
+    color: "#555",
+  },
+  navBar: {
+    position: "absolute",
+    bottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  navIcon: {
+    fontSize: 22,
+    fontFamily: "PixelifySans_400Regular",
   },
 });
